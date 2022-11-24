@@ -1,12 +1,8 @@
 class BaseResponse<T> {
-  BaseResponse(
-      {required this.data,
-      required this.code,
-      required this.message,
-      this.extral});
+  BaseResponse(this.data, this.code, this.message);
 
   T data;
-  String code;
+  int code;
   String message;
   dynamic extral;
 }

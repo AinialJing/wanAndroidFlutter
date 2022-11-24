@@ -14,7 +14,7 @@ abstract class BaseRequest {
   String url() {
     Uri uri;
     if (useHttps) {
-      uri = Uri.https(host(), path(), params);
+      uri = Uri.https(host(), path());
     } else {
       uri = Uri.http(host(), path(), params);
     }
