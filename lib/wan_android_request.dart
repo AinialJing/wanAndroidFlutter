@@ -11,9 +11,4 @@ class WanAndroidRequest extends BaseRequest{
      return HttpMethod.GET;
   }
 
-  @override
-  String path() {
-    // TODO: implement path
-    throw UnimplementedError();
-  }
 }

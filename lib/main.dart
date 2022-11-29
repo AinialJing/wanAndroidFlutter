@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:wan_android_flutter/http/dio_adapter.dart';
+import 'package:wan_android_flutter/model/home_banner_entity.dart';
+import 'package:wan_android_flutter/wan_android_request.dart';
 
 void main() {
   runApp(const MyApp());
@@ -51,6 +54,12 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
+    var request=WanAndroidRequest();
+    request.addPath('banner/json');
+    var adapter=DioAdapter();
+    adapter.send(request).then((value){
+      print('value:${HomeBannerEntity.fromJson(value).data[0]}');
+    });
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below

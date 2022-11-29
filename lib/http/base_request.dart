@@ -2,24 +2,32 @@ enum HttpMethod { GET, POST, DELETE }
 
 abstract class BaseRequest {
   var useHttps = true;
-  var params;
+  var path, pathParams, params;
   Map<String, dynamic> header = {};
 
   String host();
 
   HttpMethod httpMethod();
 
-  String path();
-
   String url() {
     Uri uri;
     if (useHttps) {
-      uri = Uri.https(host(), path());
+      uri = Uri.https(host(), path, pathParams);
     } else {
-      uri = Uri.http(host(), path(), params);
+      uri = Uri.http(host(), path, pathParams);
     }
 
     return uri.toString();
+  }
+
+  BaseRequest addPath(String path) {
+    this.path = path;
+    return this;
+  }
+
+  BaseRequest addPathParams(Map<String, dynamic> pathParams) {
+    this.pathParams = pathParams;
+    return this;
   }
 
   BaseRequest addParams(Map<String, dynamic> params) {
