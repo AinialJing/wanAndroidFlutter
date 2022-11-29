@@ -32,4 +32,9 @@ class HomeBannerData {
   factory HomeBannerData.fromJson(Map<String, dynamic> json) => _$HomeBannerDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$HomeBannerDataToJson(this);
+
+	@override
+  String toString() {
+    return 'HomeBannerData{desc: $desc, id: $id, imagePath: $imagePath, isVisible: $isVisible, order: $order, title: $title, type: $type, url: $url}';
+  }
 }

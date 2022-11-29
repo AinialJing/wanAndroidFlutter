@@ -13,7 +13,6 @@ class DioAdapter extends BaseAdapter {
     }else if(request.httpMethod() == HttpMethod.DELETE){
       response= await Dio().delete(request.url(),data: request.params);
     }
-
     return response.data;
   }
 

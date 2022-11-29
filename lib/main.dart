@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
     request.addPath('banner/json');
     var adapter=DioAdapter();
     adapter.send(request).then((value){
-      print('value:${HomeBannerEntity.fromJson(value).data[0]}');
+      print('value:${HomeBannerEntity.fromJson(value).data[0].toString()}');
     });
     setState(() {
       // This call to setState tells the Flutter framework that something has
