@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wan_android_flutter/http/dio_adapter.dart';
-import 'package:wan_android_flutter/model/home_banner_entity.dart';
-import 'package:wan_android_flutter/wan_android_request.dart';
+import 'package:wan_android_flutter/model/progect_detail_list_entity.dart';
+import 'package:wan_android_flutter/progect/progect_detail_list.dart';
 
 void main() {
   runApp(const MyApp());
@@ -54,11 +54,14 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
-    var request=WanAndroidRequest();
-    request.addPath('banner/json');
-    var adapter=DioAdapter();
+    ProgectDetailListRequest request=ProgectDetailListRequest();
+    request.addRESTFullPath('1/json');
+    Map<String,dynamic> pathParams={};
+    pathParams['cid']=294;
+    request.addPathParams(pathParams);
+    DioAdapter adapter=DioAdapter();
     adapter.send(request).then((value){
-      print('value:${HomeBannerEntity.fromJson(value).data[0]}');
+      print('${ProgectDetailListEntity.fromJson(value)}');
     });
     setState(() {
       // This call to setState tells the Flutter framework that something has
