@@ -61,7 +61,11 @@ class _MyHomePageState extends State<MyHomePage> {
     request.addPathParams(pathParams);
     DioAdapter adapter=DioAdapter();
     adapter.send(request).then((value){
+<<<<<<< HEAD
       print('${ProgectDetailListEntity.fromJson(value)}');
+=======
+      print('value:${HomeBannerEntity.fromJson(value).data[0].toString()}');
+>>>>>>> 062f5bde1c156f576de1a2700a1c3095b582cfe2
     });
     setState(() {
       // This call to setState tells the Flutter framework that something has

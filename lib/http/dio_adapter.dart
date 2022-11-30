@@ -20,7 +20,6 @@ class DioAdapter extends BaseAdapter {
       error=e;
       response=e.response;
     }
-
     return response.data;
   }
 
