@@ -6,7 +6,7 @@ part 'home_banner_entity.g.dart';
 
 /// 1、导入import package:json_annotation/json_annotation.dart
 /// 2、添加part 'home_banner_entity.g.dart'
-/// 3、执行flutter pub run build_runner build
+/// 3、执行flutter pub run build_runner build或者flutter packages pub run build_runner build lib
 @JsonSerializable()
 class HomeBannerEntity {
 
