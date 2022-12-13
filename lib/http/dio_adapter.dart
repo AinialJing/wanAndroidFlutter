@@ -16,7 +16,6 @@ class DioAdapter extends BaseAdapter {
             response= await Dio().delete(request.url(),data: request.params);
           }
     } on DioError catch (e) {
-      print('catch error:${e.type}');
       error=e;
       response=e.response;
     }

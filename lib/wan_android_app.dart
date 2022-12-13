@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wan_android_flutter/cache/sharedpreferences_cache.dart';
 import 'package:wan_android_flutter/collection/page/collection_home_page.dart';
 import 'package:wan_android_flutter/home/page/home_page.dart';
 import 'package:wan_android_flutter/navigator/page/navigator_home_page.dart';
@@ -12,32 +13,45 @@ class WanAndroidApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      routes: <String, WidgetBuilder>{
-        'register': (context) => const RegisterPage(key: Key('RegisterPage')),
-        'login': (context) => const LoginPage(key: Key('LoginPage')),
-        'home': (context) => const HomePage(key: Key('HomePage')),
-        'project': (context) => const ProjectHomePage(key: Key('ProjectHomePage')),
-        'navigator': (context) => const NavigatorHomePage(key: Key('NavigatorHomePage')),
-        'collection': (context) => const CollectionHomePage(key: Key('CollectionHomePage')),
-      },
-      home: _HomeApp(key: Key("HomeApp"),),
-    );
+    return FutureBuilder<SharedPreferencesUtil>(
+        future: SharedPreferencesUtil.preInit(),
+        builder: (BuildContext context,
+        AsyncSnapshot<SharedPreferencesUtil> snapshot) {
+      return MaterialApp(
+        routes: <String, WidgetBuilder>{
+          'register': (context) => const RegisterPage(key: Key('RegisterPage')),
+          'login': (context) => const LoginPage(key: Key('LoginPage')),
+          'home': (context) => const HomePage(key: Key('HomePage')),
+          'project': (context) =>
+          const ProjectHomePage(key: Key('ProjectHomePage')),
+          'navigator': (context) =>
+          const NavigatorHomePage(key: Key('NavigatorHomePage')),
+          'collection': (context) =>
+          const CollectionHomePage(key: Key('CollectionHomePage')),
+        },
+        home: const _HomeApp(key: Key("HomeApp"),),
+      );
+    });
   }
 }
 
 class _HomeApp extends StatefulWidget {
 
-  _HomeApp({Key? key}) : super(key: key);
+  const _HomeApp({Key? key}) : super(key: key);
 
   @override
   State<_HomeApp> createState() => _HomeAppState();
 }
 
 class _HomeAppState extends State<_HomeApp> {
-  int currentIndex=0;
+  int currentIndex = 0;
 
-  final pages = [HomePage(), ProjectHomePage(), NavigatorHomePage(), CollectionHomePage()];
+  final pages = [
+    const HomePage(),
+    const ProjectHomePage(),
+    const NavigatorHomePage(),
+    const CollectionHomePage()
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -46,22 +60,28 @@ class _HomeAppState extends State<_HomeApp> {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.lightBlue,
         currentIndex: currentIndex,
-        items:const [
-          BottomNavigationBarItem(icon: Icon(Icons.home),label: '首页'),
-          BottomNavigationBarItem(icon: Icon(Icons.map_outlined),label: '项目'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_tree_outlined),label: '导航'),
-          BottomNavigationBarItem(icon: Icon(Icons.star),label: '收藏'),
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: '首页'),
+          BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: '项目'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.account_tree_outlined), label: '导航'),
+          BottomNavigationBarItem(icon: Icon(Icons.star), label: '收藏'),
         ],
-        onTap:(value){
+        onTap: (value) {
           setState(() {
-            if(currentIndex !=value){
-              currentIndex=value;
+            if (currentIndex != value) {
+              currentIndex = value;
             }
           });
-        } ,
+        },
       ),
       body: pages[currentIndex],
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 }
 
