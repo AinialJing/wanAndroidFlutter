@@ -4,6 +4,8 @@ import 'package:wan_android_flutter/collection/page/collection_home_page.dart';
 import 'package:wan_android_flutter/home/page/home_page.dart';
 import 'package:wan_android_flutter/navigator/page/navigator_home_page.dart';
 import 'package:wan_android_flutter/progect/page/progect_home_page.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:wan_android_flutter/webview/global_webview.dart';
 
 import 'login/page/login.dart';
 import 'login/page/register.dart';
@@ -22,6 +24,7 @@ class WanAndroidApp extends StatelessWidget {
           'register': (context) => const RegisterPage(key: Key('RegisterPage')),
           'login': (context) => const LoginPage(key: Key('LoginPage')),
           'home': (context) => const HomePage(key: Key('HomePage')),
+          'homeDetail': (context) => const GlobalWebView(key: Key('homeDetailPage')),
           'project': (context) =>
           const ProjectHomePage(key: Key('ProjectHomePage')),
           'navigator': (context) =>
@@ -29,7 +32,9 @@ class WanAndroidApp extends StatelessWidget {
           'collection': (context) =>
           const CollectionHomePage(key: Key('CollectionHomePage')),
         },
-        home: const _HomeApp(key: Key("HomeApp"),),
+        navigatorObservers: [FlutterSmartDialog.observer],
+        home: const _HomeApp(key: Key("HomeApp")),
+        builder: FlutterSmartDialog.init(),
       );
     });
   }

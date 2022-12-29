@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:wan_android_flutter/cache/sharedpreferences_cache.dart';
+import 'package:wan_android_flutter/consts.dart';
+import 'package:wan_android_flutter/http/base_response.dart';
+import 'package:wan_android_flutter/login/dao/login_dao.dart';
+import 'package:wan_android_flutter/login/dao/register_dao.dart';
+import 'package:wan_android_flutter/login/entities/user_entity.dart';
 import 'package:wan_android_flutter/string_source.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 ///登陆页面
 class LoginPage extends StatefulWidget {
@@ -92,7 +100,6 @@ class _LoginPageState extends State<LoginPage>
                     ),
                     onChanged: (text) {
                       account = text;
-                      print('$account');
                     }),
                 const SizedBox(height: 20),
                 TextFormField(
@@ -100,10 +107,14 @@ class _LoginPageState extends State<LoginPage>
                   obscureText: true,
                   controller: controllerPassword,
                   keyboardType: TextInputType.number,
+                  textInputAction: isRegisterState
+                      ? TextInputAction.next
+                      : TextInputAction.done,
                   decoration: const InputDecoration(
                     icon: Icon(Icons.lock_outline),
                     labelText: Strings.HINT_ENTER_PASSWORD,
                   ),
+
                   ///如果想获取到输入框的内容的话，有两种方式，第一种：为该控件设置controller;第二种：重写onChanged方法，在该方法的回调里面赋值变量
                   onChanged: (text) {
                     password = text;
@@ -115,7 +126,7 @@ class _LoginPageState extends State<LoginPage>
                   child: Column(
                     children: <Widget>[
                       TextFormField(
-                        controller: controllerConfirmPassword,
+                          controller: controllerConfirmPassword,
                           obscureText: true,
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
@@ -180,11 +191,30 @@ class _LoginPageState extends State<LoginPage>
   }
 
   _doRegister() {
-    print('do register:用户名：$account,密码:$password');
-    print('do register controller 用户名：${controllerAccount.text},密码:${controllerPassword.text}');
+    RegisterDao.doRegister(account, password, confirmPassword, (response) {
+      BaseResponse baseResponse = response;
+      if (baseResponse.errorCode == 0) {
+        setState(() {
+          isRegisterState = false;
+        });
+      } else {
+        Fluttertoast.showToast(msg: baseResponse.errorMsg);
+      }
+    });
   }
 
   _doLogin() {
-    print('do login:用户名：$account,密码:$password');
+    SmartDialog.showLoading();
+    LoginDao.doLogin(account, password, (value) {
+      if (value.errorCode == 0) {
+        SmartDialog.dismiss();
+        Fluttertoast.showToast(msg: Strings.LOGIN_SUCCESS);
+        SharedPreferencesUtil.getInstance().setBool(Consts.LOGIN_STATE, true);
+        Navigator.pop(context);
+      } else {
+        Fluttertoast.showToast(msg: value.errorMsg);
+        SharedPreferencesUtil.getInstance().setBool(Consts.LOGIN_STATE, false);
+      }
+    });
   }
 }

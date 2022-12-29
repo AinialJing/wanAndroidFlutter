@@ -1,12 +1,18 @@
+import 'dart:async';
+
+import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:wan_android_flutter/cache/sharedpreferences_cache.dart';
 import 'package:wan_android_flutter/consts.dart';
 import 'package:wan_android_flutter/home/dao/home_dao.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:wan_android_flutter/string_source.dart';
 
+import '../../event/home_refresh_event.dart';
 import '../entities/home_banner_entity.dart';
 import '../entities/home_list_entity.dart';
+
+EventBus eventBus = EventBus();
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -32,7 +38,9 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  Future<void> _loadData() async {}
+  Future<void> _loadData() async {
+    eventBus.fire(HomeRefreshEvent());
+  }
 }
 
 ///Banner
@@ -85,7 +93,13 @@ class HomeList extends StatefulWidget {
 }
 
 class _HomeListState extends State<HomeList> {
+  late StreamSubscription<HomeRefreshEvent> subscription;
+
   List<HomeListDataItem> listDatas = [];
+
+  int pageIndex = 0;
+
+  final ScrollController _controller = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -95,43 +109,83 @@ class _HomeListState extends State<HomeList> {
 
           ///该属性解决即使数据没有满屏，也可以触发滚动
           physics: const AlwaysScrollableScrollPhysics(),
+          controller: _controller,
           itemCount: listDatas.length,
           itemBuilder: (BuildContext context, int index) =>
-              _buildItem(listDatas[index])),
+              HomeListItem(listDatas[index])),
     );
   }
 
   @override
   void initState() {
     super.initState();
+    subscription = eventBus.on<HomeRefreshEvent>().listen((event) {
+      pageIndex = 0;
+      _loadListData();
+    });
+    _controller.addListener(() {
+      if (_controller.position.pixels == _controller.position.maxScrollExtent) {
+        pageIndex++;
+        _loadListData();
+      }
+    });
+    eventBus.fire(HomeRefreshEvent());
+  }
+
+  _loadListData() {
     HomeDao homeDao = HomeDao();
-    homeDao.getListByPages(0, (value) {
-      HomeListData homeListData = value;
+    homeDao.getListByPages(pageIndex, (value) {
       setState(() {
-        listDatas = homeListData.datas;
+        if (pageIndex == 0) {
+          listDatas = value.datas;
+        } else {
+          listDatas.addAll(value.datas);
+        }
       });
     });
   }
 
-  ///列表Item
-  _buildItem(HomeListDataItem listData) {
-    return Card(
-      margin: const EdgeInsets.all(10),
-      elevation: 5,
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        height: 130,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _header(listData),
-            Container(
-              margin: const EdgeInsets.only(top: 10, bottom: 10),
-              child: Text(listData.title,
-                  style: const TextStyle(color: Colors.blue, fontSize: 18)),
-            ),
-            _bottom(listData)
-          ],
+  @override
+  void dispose() {
+    super.dispose();
+    subscription.cancel();
+  }
+}
+
+class HomeListItem extends StatefulWidget {
+  final HomeListDataItem listData;
+
+  const HomeListItem(this.listData, {super.key});
+
+  @override
+  State<HomeListItem> createState() => _HomeListItemState();
+}
+
+class _HomeListItemState extends State<HomeListItem> {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, 'homeDetail', arguments: widget.listData.link);
+      },
+      child: Card(
+        margin: const EdgeInsets.all(10),
+        elevation: 5,
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          height: 130,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _header(widget.listData),
+              Container(
+                margin: const EdgeInsets.only(top: 10, bottom: 10),
+                child: Text(widget.listData.title,
+                    style: const TextStyle(color: Colors.blue, fontSize: 18)),
+              ),
+              _bottom(widget.listData)
+            ],
+          ),
         ),
       ),
     );
@@ -190,9 +244,24 @@ class _HomeListState extends State<HomeList> {
               width: 24,
               height: 24),
           onTap: () {
-            var cookie =
-                SharedPreferencesUtil.getInstance().get(Consts.COOKIE_KEY);
-            if (cookie == null) {
+            bool loginState = SharedPreferencesUtil.getInstance()
+                    .get(Consts.LOGIN_STATE) as bool ??
+                false;
+            if (loginState) {
+              if (listData.collect) {
+                _cancelCollect(listData.id, (state) {
+                  setState(() {
+                    listData.collect = state;
+                  });
+                });
+              } else {
+                _doCollect(listData.id, (state) {
+                  setState(() {
+                    listData.collect = state;
+                  });
+                });
+              }
+            } else {
               Navigator.pushNamed(context, 'login');
             }
           },
@@ -200,4 +269,18 @@ class _HomeListState extends State<HomeList> {
       ],
     );
   }
+}
+
+void _doCollect(int id, ValueChanged<bool> changed) {
+  HomeDao homeDao = HomeDao();
+  homeDao.doCollect(id, (value) {
+    changed.call(value);
+  });
+}
+
+void _cancelCollect(int id, ValueChanged<bool> changed) {
+  HomeDao homeDao = HomeDao();
+  homeDao.cancelCollect(id, (value) {
+    changed.call(value);
+  });
 }

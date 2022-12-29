@@ -7,4 +7,5 @@ class Strings{
   static const String HINT_ENTER_ACCOUNT="请输入账号";
   static const String HINT_ENTER_PASSWORD="请输入密码";
   static const String HINT_ENTER_CONFIRM_PASSWORD="请确认密码";
+  static const String LOGIN_SUCCESS="登陆成功";
 }
